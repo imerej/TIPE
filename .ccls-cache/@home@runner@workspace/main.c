@@ -14,12 +14,12 @@ int main() {
   // pour le puissance 4
   int *hauteur = malloc(sizeof(int) * COLS+2);
   for (int i = 1; i <= COLS; i++) {
-    hauteur[i] = 1;
+    hauteur[i] = LINE;
   }
   hauteur[0] = -1;
   hauteur[COLS + 1] = -1;
   int **grille = cree_grille();
-  joue_solo(grille, 2, hauteur);
+  joue_solo(grille, 1, hauteur);
 
   liberer_grille(grille);
   free(hauteur);

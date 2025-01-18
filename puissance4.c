@@ -59,8 +59,9 @@ void afficher_grille(int **grille) {
 	 }
 	 printf("|\n");
   }
-  printf("-----------------------------\n");
-  for (int j = 0; j < COLS; j++) {
+  printf("-------------------------------------\n");
+  printf("    ");
+	for (int j = 1; j < COLS+1; j++) {
 	 printf("  %d ", j);
   }
   printf("\n\n");
@@ -157,7 +158,7 @@ void joue_a_2(int **grille, int joueur, int *hauteur) {
   }
   if (coup_correcte(grille, coup, hauteur)) {
 	 grille[hauteur[coup]][coup] = joueur;
-	 hauteur[coup]++;
+	 hauteur[coup]--;
 	 if (verifier_victoire(grille, joueur)) {
 		afficher_grille(grille);
 		print_victoire(joueur);
@@ -191,7 +192,7 @@ void joue_solo(int **grille, int joueur, int *hauteur) {
 	 }
 	 if (coup_correcte(grille, coup, hauteur)) {
 		grille[hauteur[coup]][coup] = joueur;
-		hauteur[coup]++;
+		hauteur[coup]--;
 		if (verifier_victoire(grille, joueur)) {
 		  afficher_grille(grille);
 		  print_victoire(joueur);
@@ -209,7 +210,7 @@ void joue_solo(int **grille, int joueur, int *hauteur) {
   int* resultat = minmax(grille, joueur, hauteur, 3, 1);
   int coup =  resultat[0];
   grille[hauteur[coup]][coup] = joueur;
-  hauteur[coup]++;
+  hauteur[coup]--;
   printf("%d\n", coup);
   for(int i=0; i<COLS; i++)
 	  printf(" %d ", hauteur[i]);

@@ -115,7 +115,7 @@ int* minmax(int **grille, int joueur, int *hauteur, int profondeur, bool maximis
 		return resultat; 
 	}
 	else {
-		hauteur[meilleur_coup]--;
+		hauteur[meilleur_coup]++;
 		grille[hauteur[meilleur_coup]][meilleur_coup] = 0;//on  enleve le changement quon avait effectue
 	}
 	
