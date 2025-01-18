@@ -87,7 +87,7 @@ int* minmax(int **grille, int joueur, int *hauteur, int profondeur, bool maximis
 	{
 		return resultat;
 	}
-	
+
 	int meilleur_score = -1;
 	int meilleur_coup = -1;
 	for (int i = 0; i < COLS; i++)
@@ -104,22 +104,23 @@ int* minmax(int **grille, int joueur, int *hauteur, int profondeur, bool maximis
 		return resultat;
 	variation_score += meilleur_score;
 	grille[hauteur[meilleur_coup]][meilleur_coup] = joueur;
-	
-	hauteur[meilleur_coup]--; // hauteur du prochain coup dispo,    == -1 si la colonne est pleine
+
+	hauteur[meilleur_coup]--;
 	affiche_hauteur(hauteur);
 	score_grille += (2*maximisation - 1)*variation_score;
 	printf("meilleur coup :%d\nvariation score %d\njoueur %d\n score_grille : %d\n", meilleur_coup, variation_score, joueur, score_grille);
 	minmax(grille, joueur%2 + 1, hauteur, profondeur - 1, !maximisation);
-	if(hauteur[meilleur_coup] < 0 || hauteur[meilleur_coup] > LINE-1 ||  meilleur_coup < 0 || meilleur_coup > COLS-1) { 
-		printf("erreur, on essaie de vider la case %d %d de la grille", hauteur[meilleur_coup], meilleur_coup); 
-		return resultat; 
+
+	if(hauteur[meilleur_coup] < 0 || hauteur[meilleur_coup] >= LINE || meilleur_coup < 0 || meilleur_coup >= COLS) {
+		printf("erreur, position invalide %d %d\n", hauteur[meilleur_coup], meilleur_coup);
+		return resultat;
 	}
-	else {
-		hauteur[meilleur_coup]++;
-		grille[hauteur[meilleur_coup]][meilleur_coup] = 0;//on  enleve le changement quon avait effectue
-	}
-	
-	
+
+	grille[hauteur[meilleur_coup]][meilleur_coup] = 0;
+	hauteur[meilleur_coup]++;
+
+
+
 	resultat[0] = meilleur_coup;
 	resultat[1] =  variation_score;
 	return resultat;
@@ -141,7 +142,7 @@ int alpha_beta(int **grille, int joueur, int *hauteur, int profondeur) {
 		/*
 fonction alphabeta(nœud, α, β)  α est toujours inférieur à β 
 
-	
+
 sinon 
 			si nœud est de type Min alors
 						  v = +∞
