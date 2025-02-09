@@ -118,9 +118,7 @@ bool verifier_victoire(
 }
 
 bool coup_correcte(int **grille, int coup, int* hauteur) {
-  if (grille[hauteur[coup]][coup] == 0) 
-	 return true;
-  return false;
+  return grille[hauteur[coup]][coup] == 0;
 }
 void print_victoire(int joueur){
   printf("\n");
@@ -207,7 +205,7 @@ void joue_solo(int **grille, int joueur, int *hauteur) {
 	 return;
   }
 
-  int* resultat = minmax(grille, joueur, hauteur, 3, 1);
+  int* resultat = minmax(grille, joueur, hauteur, 10, 1);
   int coup =  resultat[0];
   grille[hauteur[coup]][coup] = joueur;
   hauteur[coup]--;

@@ -19,7 +19,7 @@ int main() {
   hauteur[0] = -1;
   hauteur[COLS + 1] = -1;
   int **grille = cree_grille();
-  joue_solo(grille, 1, hauteur);
+  joue_solo(grille, 2, hauteur);
 
   liberer_grille(grille);
   free(hauteur);

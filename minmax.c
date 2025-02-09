@@ -7,11 +7,11 @@
 #include "minmax.h"
 #include <limits.h>
 
-int score_grille = 0;
 
 #define LINE 6
 #define COLS 7
 
+int score_grille = 0;
 
 void affiche_hauteur(int *hauteur){
 	for(int i = 0; i < COLS; i++){
@@ -42,10 +42,11 @@ int score(int **grille, int joueur, int *hauteur, int coup)
 
 	 while (
 		 i<4 
-		 && ligne - (i * delta[j][0]) < LINE
+		 /*&& ligne - (i * delta[j][0]) < LINE
 		 && colonne - (i * delta[j][1]) < COLS
 		 && ligne - (i * delta[j][0]) >= 0
-		 && colonne - (i * delta[j][1]) >= 0
+		 && colonne - (i * delta[j][1]) >= 0*/
+		 &&grille[ligne - (i * delta[j][0])][colonne - (i * delta[j][1])] != -1		 
 		 && grille[ligne - (i * delta[j][0])][colonne - (i * delta[j][1])] != (joueur % 2) + 1
 	 ) {
 		case_de_suite++;
@@ -54,10 +55,11 @@ int score(int **grille, int joueur, int *hauteur, int coup)
 	 i=1;
 	 while (
 		 i<4 
-		  && ligne + (i * delta[j][0]) < LINE
+		  /*&& ligne + (i * delta[j][0]) < LINE
 		  && colonne + (i * delta[j][1]) < COLS
 		  && ligne + (i * delta[j][0]) >= 0
-		  && colonne + (i * delta[j][1]) >= 0
+		  && colonne + (i * delta[j][1]) >= 0*/
+		 && grille[ligne + (i * delta[j][0])][colonne + (i * delta[j][1])] != -1
 		 && grille[ligne + (i * delta[j][0])][colonne + (i * delta[j][1])] != (joueur % 2) + 1
 	) {
 		case_de_suite++;
@@ -80,9 +82,8 @@ int* minmax(int **grille, int joueur, int *hauteur, int profondeur, bool maximis
 	//on rentrera celle ci dans resultat[1] a la fin de la fonction
 	if (
 		profondeur == 0 
-		|| est_pleine(grille) 
-		|| verifier_victoire(grille, 1) 
-		|| verifier_victoire(grille, 2)
+		|| est_pleine(grille)
+		|| verifier_victoire(grille, joueur)
 		) 
 	{
 		return resultat;
@@ -90,7 +91,7 @@ int* minmax(int **grille, int joueur, int *hauteur, int profondeur, bool maximis
 
 	int meilleur_score = -1;
 	int meilleur_coup = -1;
-	for (int i = 0; i < COLS; i++)
+	for (int i = 1; i < COLS+1; i++)
 	{
 		int sc = score(grille, joueur, hauteur, i);
 		printf("score pour la case %d : %d\n",i, sc);
@@ -111,16 +112,13 @@ int* minmax(int **grille, int joueur, int *hauteur, int profondeur, bool maximis
 	printf("meilleur coup :%d\nvariation score %d\njoueur %d\n score_grille : %d\n", meilleur_coup, variation_score, joueur, score_grille);
 	minmax(grille, joueur%2 + 1, hauteur, profondeur - 1, !maximisation);
 
-	if(hauteur[meilleur_coup] < 0 || hauteur[meilleur_coup] >= LINE || meilleur_coup < 0 || meilleur_coup >= COLS) {
+	if(hauteur[meilleur_coup] < 0 || hauteur[meilleur_coup] >= LINE+1 || meilleur_coup < 0 || meilleur_coup >= COLS+1) {
 		printf("erreur, position invalide %d %d\n", hauteur[meilleur_coup], meilleur_coup);
 		return resultat;
 	}
 
-	grille[hauteur[meilleur_coup]][meilleur_coup] = 0;
 	hauteur[meilleur_coup]++;
-
-
-
+	grille[hauteur[meilleur_coup]][meilleur_coup] = 0;
 	resultat[0] = meilleur_coup;
 	resultat[1] =  variation_score;
 	return resultat;
