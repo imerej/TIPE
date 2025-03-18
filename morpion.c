@@ -8,14 +8,30 @@
 // j'implemente ici un puissance 4 de 7*6 en 2D (avec gravité)
 //rajouter une verification de la p pleine
 
+/*
 typedef struct Plateau {
-   int* grille;
-   int progression; // nombre de coups joués
+	int* grille;
+	int progression; // nombre de coups joués
 	int score; //score de la p
 	int dimension; // dimension de la p
 	int taille;// taille de la p
 	int combo; // nombre de pions à aligner pour gagner
 } plateau;
+*/
+
+typedef struct Hypergraphe {
+	int combo; // nombre de pions à aligner pour gagner
+	int progression; // nombre de coups joués
+	int score; //score de la p
+	int dimension; // dimension de la p
+	int taille;// taille de la p
+	int nbj; // nombre de joueurs
+	int **mat; //la matrice d'adjacence
+	int nb_alignements;
+	int nb_cases;
+} hgraphe;
+
+// la matrice 
 
 typedef struct Coup {
 	int indice; // indice du coup joué
@@ -23,24 +39,39 @@ typedef struct Coup {
 	int joueur; // joueur qui joue
 } coup;
 
-
-
-
-plateau* cree_plateau(int dimension, int taille)
+hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj,)
 {
-	plateau *p = malloc(sizeof( plateau ));
-	p -> grille = malloc(sizeof(int) * pow(taille, dimension));
-	p -> progression = 0;
-	p -> score = 0;
-	p -> dimension = dimension;
-	p -> taille = taille;
-	return p;
+	int nb_a = (pow(3*taille - 2*combo + 2, dimension)-pow(taille,dimension))/2;
+	int nb_c = pow(taille,dimension);
+	
+	h hgraphe* = malloc(sizeof( hgraphe ));
+	
+	int **mat = malloc(nb_a*sizeof(int*));
+	
+	for (int i = 0; i < nb_a; i++)
+		mat[i] = malloc(nb_c*sizeof(int));
+	
+	for (int i = 0; i < nb_a; i++)
+		for(int j = 0; j < nb_c; j++)
+			mat[i][j] = -1;
+	
+	h -> nb_cases = nb_c;
+	h -> nb_alignements = nb_a;
+	h -> mat = mat;
+	h -> progression = 0;
+	h -> score = 0;
+	h -> dimension = dimension;
+	h -> taille = taille;
+	
+	return h;
 }
 
-void liberer_plateau(plateau *p)
+void liberer_graphe(hgraphe *h)
 {
-	free(p -> grille);
-	free(p);
+	for(int i = 0; i < h -> nb_alignements; i++)
+		free( h -> mat[i]);
+	free(mat);
+	free(h);
 	return;
 }
 
@@ -52,63 +83,64 @@ void liberer_coup(coup *c)
 }
 
 
-void coup_joueur(plateau *p, coup *c)
+void coup_joueur(hgraphe *h, coup *c)
 {
-	printf("Quel coup voulez-vous jouer joueur numero %d?\n", c -> joueur);
-	//int *coup = malloc(p -> dimension*sizeof(int));
+	printf("Quel coup voulez-vous jouer, joueur numero %d?\n", c -> joueur);
+	//int *coup = malloc(h -> dimension*sizeof(int));
 	
-	for(int i = 0; i < p -> dimension; i++) {
-		scanf("ieme coordonnée : ?%d\n", &c->coordonnees[i]);
+	for(int i = 0; i < h -> dimension; i++) {
+		scanf("%deme coordonnée : ?%d (<= %d)\n",i , &c->coordonnees[i], h -> taille);
+		if(&c->coordonnees[i] > h -> taille){
+			printf("ce n'est pas un coup valide");
+			i--;
+		}
 	}
 	return;
 }
 
-void converti_coup_vers_indice(plateau *p, coup *c)
+void converti_coup_vers_indice(hgraphe *h, coup *c)
 {
 	int somme = 0;
 	int puissance = 1;
-	for(int i = 0; i < p -> dimension; i++)
+	for(int i = 0; i < h -> dimension; i++)
 	{
 		somme += puissance * c -> coordonnees[i];
-		puissance *= p -> taille;
+		puissance *= h -> taille;
 	}
 	return;
 }
 
-void converti_indice_vers_coup(plateau *p, coup *c)
+void converti_indice_vers_coup(hgraphe *h, coup *c)
 {
-	for(int k = p -> dimension; k >= 0; k--)
+	for(int k = h -> dimension; k >= 0; k--)
 		{
-			c -> coordonnees[k] = c -> indice / p -> taille;
-			c -> indice = c->indice - p -> taille * c -> coordonnees[k];
+			c -> coordonnees[k] = c -> indice / h -> taille;
+			c -> indice = c->indice - h -> taille * c -> coordonnees[k];
 		}
 	return;
 }
 
 
-bool est_pleine(plateau p)
+bool est_pleine(hgraphe* h)
 {
-	return p.progression == pow(p.taille, p.dimension);  
+	return h -> progression == pow(h -> taille, h -> dimension);
 }
 
 
-
-char affiche(int n){
+/*
+char affiche(int n) {
 	 if(n==0){return ' ';}
 	 if(n==1){return 'X';}
 	 if(n==-1){return '#';}
 	 return 'O';
 }
-void afficher_p(plateau *p) {
-	if( p -> dimension > 2) {printf("Dimension trop grande"); return;}
-	if( p -> dimension == 2){
-	   for (int i = 0; i < p -> taille ; i++) {
-		   for (int j = 0; j < p -> taille; j++) {
-				printf("| %c ", affiche(p -> plateau[i][j]));
-		 	}
-			printf("|\n");
-	   }
-  printf(" -------------------------------------\n");
+*/
+
+void afficher_graphe(hgraphe *h) {
+for (int i = 0; i < h -> nb_alignements ; i++) 
+	for (int j = 0; j < h -> nb_cases; j++) 
+		printf(" %d ", j);
+	printf("|\n");
   printf("    ");
 	for (int j = 0; j < p->taille; j++) {
 	 printf("  %d ", j);
