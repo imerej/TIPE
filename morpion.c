@@ -26,7 +26,7 @@ typedef struct Hypergraphe {
 	int dimension; // dimension de la p
 	int taille;// taille de la p
 	int nbj; // nombre de joueurs
-	int **mat; //la matrice d'adjacence
+	int **mat; //la matrice d'adjacence avec les lignes pour les arrêtes et les colonnes pour les sommets
 	int nb_alignements;
 	int nb_cases;
 } hgraphe;
@@ -39,12 +39,12 @@ typedef struct Coup {
 	int joueur; // joueur qui joue
 } coup;
 
-hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj,)
+hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
 {
 	int nb_a = (pow(3*taille - 2*combo + 2, dimension)-pow(taille,dimension))/2;
 	int nb_c = pow(taille,dimension);
 	
-	h hgraphe* = malloc(sizeof( hgraphe ));
+	hgraphe* h = malloc(sizeof( hgraphe ));
 	
 	int **mat = malloc(nb_a*sizeof(int*));
 	
@@ -66,11 +66,56 @@ hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj,)
 	return h;
 }
 
+int *incremente(int *m, int i) // on suppose m < 2^d // i indice de retenue
+{
+	if(m[i] == 0)
+	{
+		m[i] = 1;
+		return m;
+	}
+	return ajoute(m, i+1);
+}
+
+int *ajoute(int *n, int *m, int dimension)
+{
+	for(int i = 0; i < dmension; i++)
+		n[i] += m[i];
+	return n;
+}
+
+void initialise_arretes(hgraphe *h)
+{
+	int nb_vecteurs = (1 << (h -> dimension)) - 1;
+	int **delta = malloc(nb_vecteurs * sizeof(int *));
+	for (int i = 0; i < nb_vecteurs; i++)
+		delta[i] = malloc((h -> dimension) * sizeof(int));
+	delta[0][0] = 1;
+	for (int i = 1; i < h -> dimension; i++)
+		delta[0][i] = 0;
+	for (int i = 1; i < nb_vecteurs; i++)
+		delta[i] = incremente[delta[i-1], 0);
+	int *sommet = malloc((h -> dimension) * sizeof(int));
+	for (int i = 0; i< h -> dimension; i++)
+		sommet[i] = 0;
+	for (int i = 0; i < h -> nb_cases; i++)
+	{
+		sommet = converti_indice_vers_coordonnees(i, sommet,h -> nb_cases, h -> taille, h -> dimension);
+		for(int j = 0; j < nb_vecteurs; j++)
+		{
+			
+			while()
+			{
+			
+			}
+		}
+	}	
+}
+
 void liberer_graphe(hgraphe *h)
 {
 	for(int i = 0; i < h -> nb_alignements; i++)
-		free( h -> mat[i]);
-	free(mat);
+		free(h -> mat[i]);
+	free(h -> mat);
 	free(h);
 	return;
 }
@@ -98,26 +143,27 @@ void coup_joueur(hgraphe *h, coup *c)
 	return;
 }
 
-void converti_coup_vers_indice(hgraphe *h, coup *c)
+int converti_coordonnees_vers_indice(int *c, int taille, int dimension)
 {
 	int somme = 0;
 	int puissance = 1;
-	for(int i = 0; i < h -> dimension; i++)
+	for(int i = 0; i < dimension; i++)
 	{
-		somme += puissance * c -> coordonnees[i];
-		puissance *= h -> taille;
+		somme += puissance * c[i];
+		puissance *= taille;
 	}
-	return;
+	return somme;
 }
 
-void converti_indice_vers_coup(hgraphe *h, coup *c)
+int *converti_indice_vers_coordonnees(int i, int *c, int nb_cases, int taille, int dimension)
 {
-	for(int k = h -> dimension; k >= 0; k--)
+	for(int k = dimension - 1; k >= 0; k--)
 		{
-			c -> coordonnees[k] = c -> indice / h -> taille;
-			c -> indice = c->indice - h -> taille * c -> coordonnees[k];
+			c[k] = i / (nb_cases / taille);
+			i = i - (nb_cases / taille) * c[k];
+			nb_cases = nb_cases / taille;
 		}
-	return;
+	return c;
 }
 
 
@@ -142,7 +188,7 @@ for (int i = 0; i < h -> nb_alignements ; i++)
 		printf(" %d ", j);
 	printf("|\n");
   printf("    ");
-	for (int j = 0; j < p->taille; j++) {
+	for (int j = 0; j < h -> taille; j++) {
 	 printf("  %d ", j);
   }
   printf("\n\n");
@@ -196,8 +242,17 @@ bool verifier_victoire( plateau *p, coup *c) {
 	 }
   }
   return false;
-}
+} */
 
+bool verifier_victoire(hgraphe *h, coup *c)//A refaire
+{
+	bool victoire = true;
+	for(int i = 0; i < h->nb_alignements; i++)
+		if(h->mat[i][coup -> indice] != coup -> joueur)
+			victoire = false;
+	return victoire;
+}
+/*
 bool coup_correcte(int **p, int coup, int* hauteur) {
   return p[hauteur[coup]][coup] == 0;
 }
