@@ -27,6 +27,7 @@ typedef struct Hypergraphe {
 	int taille;// taille de la p
 	int nbj; // nombre de joueurs
 	int **mat; //la matrice d'adjacence avec les lignes pour les arrêtes et les colonnes pour les sommets
+			   // -1 si le sommet n'appartient pas a l'arete, 0 s'il y est et est libre, et le numero du joueur l'ayant pris sinon
 	int nb_alignements;
 	int nb_cases;
 } hgraphe;
@@ -129,26 +130,19 @@ void liberer_coup(coup *c)
 }
 
 
-//1e modif du commit a 11h30 le 14 mai
-
-void coup_joueur(hgraphe *h, coup *c)
+bool sommet_libre(hgraphe *h, coup *c) // verifie que le coup c est bien libre, i.e. jouable, dans h
 {
-  printf("Quel coup voulez-vous jouer, joueur numero %d ? (<= %d)\n", c -> joueur,h -> taille);
-  //int *coup = malloc(h -> dimension*sizeof(int));
-
-  for(int i = 0; i < h -> dimension; i++) {
-    printf("- pour la %deme coordonnée : ?\n",i);
-    scanf("%d \n", &c->coordonnees[i]);
-
-    if(c->coordonnees[i] > h -> taille){
-      printf("ce n'est pas un coup valide");
-      i--;
-    }
-  }
-  return;
+	int i = c -> indice;
+	for( int j = 0; j < h -> nb_alignements; j++){
+		if( h -> mat[j][i] > 0){
+			return false;
+		}
+	}
+	return true;
 }
 
-void converti_coup_vers_indice(hgraphe *h, coup *c)
+
+int converti_coup_vers_indice(hgraphe *h, coup *c)
 {
   int somme = 0;
   int puissance = 1;
@@ -157,7 +151,8 @@ void converti_coup_vers_indice(hgraphe *h, coup *c)
     somme += puissance * c -> coordonnees[i];
     puissance *= h -> taille;
   }
-  return;
+  return somme;
+
 }
 
 void converti_indice_vers_coup(hgraphe *h, coup *c)
@@ -165,11 +160,30 @@ void converti_indice_vers_coup(hgraphe *h, coup *c)
   for(int k = h -> dimension; k >= 0; k--)
     {
       c -> coordonnees[k] = c -> indice / h -> taille;
-      c -> indice = c->indice - h -> taille * c -> coordonnees[k];
+      c -> indice = c -> indice - (h -> taille) * (c -> coordonnees[k]);
     }
-  return;
 }
 
+void coup_joueur(hgraphe *h, coup *c)
+{
+  printf("Quel coup voulez-vous jouer, joueur numero %d ? (<= %d)\n", c -> joueur,h -> taille);
+  //int *coup = malloc(h -> dimension*sizeof(int));
+
+  for(int i = 0; i < h -> dimension; i++) {
+    printf("- pour la %deme coordonnée : ?\n",i);
+    scanf("%d \n", &c -> coordonnees[i]);
+
+    if(c -> coordonnees[i] > h -> taille){
+      printf("ce n'est pas un coup valide");
+      i--;
+    }
+  }
+  c -> indice = converti_coup_vers_indice(h,c);
+  if(!sommet_libre(h,c)){
+	printf("ce sommet est déjà occupé par un autre joueur, rejouez");
+	coup_joueur(h,c);
+  }
+}
 
 bool est_pleine(hgraphe* h)
 {
@@ -219,14 +233,8 @@ bool prend_sommet(hgraphe *h, coup *c){ // le booleen renvoie s'il y a victoire
   return victoire;
 }
 
-bool verifier_victoire(hgraphe *h, coup *c)//A refaire
-{
-	bool victoire = true;
-	for(int i = 0; i < h->nb_alignements; i++)
-		if(h->mat[i][coup -> indice] != coup -> joueur)
-			victoire = false;
-	return victoire;
-}
+
+
 
 void joue_a_2(hgraphe* h, coup* c) {
   if(est_pleine(h)){
