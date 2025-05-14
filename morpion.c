@@ -80,6 +80,18 @@ void indice_vers_coordonnees(int i, int *x, int dimension, int taille)
   	return;
 }
 
+int coordonnees_vers_indice(int *x, int dimension, int taille)
+{
+	int somme = 0;
+  	int puissance = 1;
+  	for(int i = 0; i < dimension; i++)
+ 	{
+    		somme += puissance * x[i];
+    		puissance *= taille;
+  	}
+  	return somme;
+}
+
 void indice_vers_vecteur(int i, int *x, int dimension)
 {
 	indice_vers_coordonnees(i, x, dimension, 3)
@@ -103,9 +115,19 @@ int *mult_scal(int *x, int l, int dimension)
 	return x;
 }
 
-bool alignement_valide(int *s, int *v, int dimension, int taille) //A faire
+bool alignement_valide(int *s, int *v, int dimension, int taille, int combo)
 {
-	
+	for (int i=0; i<dimension; i++)
+	{
+		if (v[i] == 1)
+			if (s[i] + combo > taille)
+				return false;
+		if (v[i] == -1)
+			if (s[i] - combo < -1)
+				return false;
+	}
+	return true;
+			
 }
 
 void initialise_arretes(hgraphe *h)
@@ -126,7 +148,8 @@ void initialise_arretes(hgraphe *h)
 		p *= 3;
 	}	
 
-	//
+
+	
 	int *sommet = malloc((h -> dimension) * sizeof(int));
 	for (int i = 0; i < h -> dimension; i++)
 		sommet[i] = 0;
@@ -136,13 +159,13 @@ void initialise_arretes(hgraphe *h)
 		for (int i_s; i_s < h -> nb_cases; i_s ++)
 		{	
 			sommet = indice_vers_coordonnees(i_s, sommet,h -> nb_cases, h -> dimension, h -> taille);
-			if (alignement_valide(sommet, delta[i_v]), h->dimension, h->taille)
+			if (alignement_valide(sommet, delta[i_v]), h->dimension, h->taille, h->combo)
 			{
 				i_a++
 				for (int i = 0; i < h ->combo; i++)
 				{	
 					sommet = ajoute(sommet, mult_scal(delta[i_v],i,h->dimension), h->dimension);
-					mat[i_a][coup_vers_indice(sommet)] = 0; //A faire coup_vers_indice comme pour coordonnees vers coup
+					mat[i_a][coordonnees_vers_indice(sommet, h->dimension, h->taille)] = 0;
 				}
 			}
 		}
@@ -186,14 +209,8 @@ void coup_joueur(hgraphe *h, coup *c)
 
 void converti_coup_vers_indice(hgraphe *h, coup *c)
 {
-  int somme = 0;
-  int puissance = 1;
-  for(int i = 0; i < h -> dimension; i++)
-  {
-    somme += puissance * c -> coordonnees[i];
-    puissance *= h -> taille;
-  }
-  return;
+	c->indice = coordonnees_vers_indice(c->coordonnees, h->dimension; h->taille);
+	return;
 }
 
 void converti_indice_vers_coup(hgraphe *h, coup *c)
