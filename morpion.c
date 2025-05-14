@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "minmax.h"
 
-// j'implemente ici un puissance 4 de 7*6 en 2D (avec gravité)
+// j'implemente ici un puissance 4 de 7*6 en 2D (avec gravité)//plus maintenant
 //rajouter une verification de la p pleine
 
 /*
@@ -41,8 +41,8 @@ typedef struct Coup {
 
 hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
 {
-	int nb_a = (pow(3*taille - 2*combo + 2, dimension)-pow(taille,dimension))/2;
-	int nb_c = pow(taille,dimension);
+	int nb_a = (pow(3*taille - 2*combo + 2, dimension)-pow(taille,dimension))/2;//nombre d'arrêtes de l'hypergraphe
+	int nb_c = pow(taille,dimension);//nombre de côtés
 	
 	hgraphe* h = malloc(sizeof( hgraphe ));
 	
@@ -66,7 +66,7 @@ hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
 	return h;
 }
 
-int *incremente(int *m, int i) // on suppose m < 2^d // i indice de retenue
+int *incremente(int *m, int i) // on suppose m < 2^d // i indice de retenue //La fonction permet d'ajouter 1 à un nombre représenté en binaire par un tableau
 {
 	if(m[i] == 0)
 	{
@@ -74,26 +74,26 @@ int *incremente(int *m, int i) // on suppose m < 2^d // i indice de retenue
 		return m;
 	}
 	return ajoute(m, i+1);
-}
+}//Complexité constante en moyenne
 
-int *ajoute(int *n, int *m, int dimension)
+int *ajoute(int *n, int *m, int dimension)//Ajouter deux nombre représenté par des tableaux (en base la dimension, il faut donc faire attention de ne pas sortir du plateau)
 {
-	for(int i = 0; i < dmension; i++)
+	for(int i = 0; i < dimension; i++)
 		n[i] += m[i];
 	return n;
 }
 
 void initialise_arretes(hgraphe *h)
 {
-	int nb_vecteurs = (1 << (h -> dimension)) - 1;
-	int **delta = malloc(nb_vecteurs * sizeof(int *));
+	int nb_vecteurs = (1 << (h -> dimension)) - 1; //Nombre de vecteurs directeurs de chaque direction
+	int **delta = malloc(nb_vecteurs * sizeof(int *)); //Tableau des directions donc tableau de vecteurs
 	for (int i = 0; i < nb_vecteurs; i++)
 		delta[i] = malloc((h -> dimension) * sizeof(int));
 	delta[0][0] = 1;
 	for (int i = 1; i < h -> dimension; i++)
 		delta[0][i] = 0;
 	for (int i = 1; i < nb_vecteurs; i++)
-		delta[i] = incremente[delta[i-1], 0);
+		delta[i] = incremente[delta[i-1], 0);//Nouvelle direction (c'est un de plus si on considère le vecteur comme un nombre en base deux)
 	int *sommet = malloc((h -> dimension) * sizeof(int));
 	for (int i = 0; i< h -> dimension; i++)
 		sommet[i] = 0;
