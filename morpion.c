@@ -238,12 +238,12 @@ bool prend_sommet(hgraphe *h, coup *c){ // le booleen renvoie s'il y a victoire
 
 void joue_a_2(hgraphe* h, coup* c) {
 	if(est_pleine(h)){
-		printf("MATCH NUL, LA GRILLE EST PLEINE");
+		printf("\nMATCH NUL, LA GRILLE EST PLEINE\n");
 		return;
 	}		
   	coup_joueur(h, c);
 	if (prend_sommet(h, c)){ 
-		affiche_victoire(c->joueur);
+		printf("\n victoire du joueur %d \n", c -> joueur);
 		return;
 	}
 	afficher_graphe(h);
@@ -256,23 +256,16 @@ void joue_a_2(hgraphe* h, coup* c) {
 void print_victoire(int joueur){
   printf("\n");
   printf("     .-. .-')  _  .-')     ('-.          (`-.                \n");
-  printf(
-		"     \\  ( OO )( \\( -O )   ( OO ).-.    _(OO  )_              \n");
-  printf(
-		"      ;-----.\\ ,------.   / . --. /,--(_/   ,. \\ .-'),-----. \n");
-  printf("      | .-.  | |   /`. '  | \\-.  \\ \\   \\   /(__/( OO'  .-.  "
-			"'\n");
-  printf(
-		"      | '-' /_)|  /  | |.-'-'  |  | \\   \\ /   / /   |  | |  |\n");
-  printf("      | .-. `. |  |_.' | \\| |_.'  |  \\   '   /, \\_) |  |\\|  "
-			"|\n");
-  printf(
-		"      | |  \\  ||  .  '.'  |  .-.  |   \\     /__)  \\ |  | |  |\n");
-  printf(
-		"      | '--'  /|  |\\  \\   |  | |  |    \\   /       `'  '-'  '\n");
+  printf("     \\  ( OO )( \\( -O )   ( OO ).-.    _(OO  )_              \n");
+  printf("      ;-----.\\ ,------.   / . --. /,--(_/   ,. \\ .-'),-----. \n");
+  printf("      | .-.  | |   /`. '  | \\-.  \\ \\   \\   /(__/( OO'  .-.  ""'\n");
+  printf("      | '-' /_)|  /  | |.-'-'  |  | \\   \\ /   / /   |  | |  |\n");
+  printf("      | .-. `. |  |_.' | \\| |_.'  |  \\   '   /, \\_) |  |\\|  ""|\n");
+  printf("      | |  \\  ||  .  '.'  |  .-.  |   \\     /__)  \\ |  | |  |\n");
+  printf("      | '--'  /|  |\\  \\   |  | |  |    \\   /       `'  '-'  '\n");
   printf("      `------' `--' '--'  `--' `--'     `-'          `-----' \n");
   printf(" \n");
-  printf("\n victoire du joueur %d \n", joueur);
+
   return;
 }
 
