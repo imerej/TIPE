@@ -39,31 +39,33 @@ typedef struct Coup {
 	int joueur; // joueur qui joue
 } coup;
 
+
+
 hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
 {
-	int nb_a = (pow(3*taille - 2*combo + 2, dimension)-pow(taille,dimension))/2;//nombre d'arrêtes de l'hypergraphe
-	int nb_c = pow(taille,dimension);//nombre de côtés
-	
-	hgraphe* h = malloc(sizeof( hgraphe ));
-	
-	int **mat = malloc(nb_a*sizeof(int*));
-	
-	for (int i = 0; i < nb_a; i++)
-		mat[i] = malloc(nb_c*sizeof(int));
-	
-	for (int i = 0; i < nb_a; i++)
-		for(int j = 0; j < nb_c; j++)
-			mat[i][j] = -1;
-	
-	h -> nb_cases = nb_c;
-	h -> nb_alignements = nb_a;
-	h -> mat = mat;
-	h -> progression = 0;
-	h -> score = 0;
-	h -> dimension = dimension;
-	h -> taille = taille;
-	
-	return h;
+  int nb_a = (pow(3 * taille - 2 * combo + 2, dimension) - pow(taille, dimension)) / 2;
+  int nb_c = pow(taille, dimension);
+
+  hgraphe* h = malloc(sizeof( hgraphe ));
+
+  int **mat = malloc(nb_a * sizeof(int*));
+
+  for (int i = 0; i < nb_a; i++)
+    mat[i] = malloc(nb_c*sizeof(int));
+
+  for (int i = 0; i < nb_a; i++)
+    for(int j = 0; j < nb_c; j++)
+      mat[i][j] = -1;
+
+  h -> nb_cases = nb_c;
+  h -> nb_alignements = nb_a;
+  h -> mat = mat;
+  h -> progression = 0; 
+  h -> score = 0;
+  h -> dimension = dimension;
+  h -> taille = taille;
+
+  return h;
 }
 
 int *incremente(int *m, int i) // on suppose m < 2^d // i indice de retenue //La fonction permet d'ajouter 1 à un nombre représenté en binaire par un tableau
@@ -117,53 +119,55 @@ void liberer_graphe(hgraphe *h)
 		free(h -> mat[i]);
 	free(h -> mat);
 	free(h);
-	return;
 }
+
 
 void liberer_coup(coup *c)
 {
 	free(c -> coordonnees);
 	free(c);
-	return;
 }
 
+
+//1e modif du commit a 11h30 le 14 mai
 
 void coup_joueur(hgraphe *h, coup *c)
 {
-	printf("Quel coup voulez-vous jouer, joueur numero %d?\n", c -> joueur);
-	//int *coup = malloc(h -> dimension*sizeof(int));
-	
-	for(int i = 0; i < h -> dimension; i++) {
-		scanf("%deme coordonnée : ?%d (<= %d)\n",i , &c->coordonnees[i], h -> taille);
-		if(&c->coordonnees[i] > h -> taille){
-			printf("ce n'est pas un coup valide");
-			i--;
-		}
-	}
-	return;
+  printf("Quel coup voulez-vous jouer, joueur numero %d ? (<= %d)\n", c -> joueur,h -> taille);
+  //int *coup = malloc(h -> dimension*sizeof(int));
+
+  for(int i = 0; i < h -> dimension; i++) {
+    printf("- pour la %deme coordonnée : ?\n",i);
+    scanf("%d \n", &c->coordonnees[i]);
+
+    if(c->coordonnees[i] > h -> taille){
+      printf("ce n'est pas un coup valide");
+      i--;
+    }
+  }
+  return;
 }
 
-int converti_coordonnees_vers_indice(int *c, int taille, int dimension)
+void converti_coup_vers_indice(hgraphe *h, coup *c)
 {
-	int somme = 0;
-	int puissance = 1;
-	for(int i = 0; i < dimension; i++)
-	{
-		somme += puissance * c[i];
-		puissance *= taille;
-	}
-	return somme;
+  int somme = 0;
+  int puissance = 1;
+  for(int i = 0; i < h -> dimension; i++)
+  {
+    somme += puissance * c -> coordonnees[i];
+    puissance *= h -> taille;
+  }
+  return;
 }
 
-int *converti_indice_vers_coordonnees(int i, int *c, int nb_cases, int taille, int dimension)
+void converti_indice_vers_coup(hgraphe *h, coup *c)
 {
-	for(int k = dimension - 1; k >= 0; k--)
-		{
-			c[k] = i / (nb_cases / taille);
-			i = i - (nb_cases / taille) * c[k];
-			nb_cases = nb_cases / taille;
-		}
-	return c;
+  for(int k = h -> dimension; k >= 0; k--)
+    {
+      c -> coordonnees[k] = c -> indice / h -> taille;
+      c -> indice = c->indice - h -> taille * c -> coordonnees[k];
+    }
+  return;
 }
 
 
@@ -182,67 +186,38 @@ char affiche(int n) {
 }
 */
 
-void afficher_graphe(hgraphe *h) {
-for (int i = 0; i < h -> nb_alignements ; i++) 
-	for (int j = 0; j < h -> nb_cases; j++) 
-		printf(" %d ", j);
-	printf("|\n");
-  printf("    ");
-	for (int j = 0; j < h -> taille; j++) {
-	 printf("  %d ", j);
-  }
-  printf("\n\n");
+void afficher_graphe(hgraphe *h) 
+{
+	for (int i = 0; i < h -> nb_alignements ; i++) 
+		for (int j = 0; j < h -> nb_cases; j++) 
+			printf(" %d ", j);
+		printf("|\n");
+	printf("    ");
+	for (int j = 0; j < h -> taille; j++) 
+		printf("  %d ", j);
+	printf("\n\n");
 }
 
 
-/*
-bool verifier_victoire( plateau *p, coup *c) {
-  // Vérification horizontale
-  for (int k = 0; k < LINE; k++) {
-	 for (int l = 0; l < COLS - 3; l++) {
-		int i = k+1;
-		int j = l+1;
-		if (p[i][j] == joueur && p[i][j + 1] == joueur &&
-			 p[i][j + 2] == joueur && p[i][j + 3] == joueur) {
-		  return true;
-		}
-	 }
+bool prend_sommet(hgraphe *h, coup *c){ // le booleen renvoie s'il y a victoire
+  int i = c -> indice;
+  bool victoire = false;
+  for( int j = 0; j < h -> nb_alignements; j++){
+    if(h -> mat[j][i] == 0){ //si le sommet est dans l'lignement on indique que le joueur l'a prit
+      h -> mat[j][i] = c -> joueur;
+      if(!victoire){ //si on se sait toujours pas s'il y a victoire on continue a vérifier
+        int k = 0;
+        while( k < h -> nb_cases && (h -> mat[j][k] == -1 || h -> mat[j][k] == 0)){
+          k++;
+        }
+        if(k == h -> nb_cases){
+          victoire = true; // si toutes les cases sont remplies on a victoire
+        }
+      }
+    }
   }
-  // Vérification verticale
-  for (int k = 0; k < LINE - 3; k++) {
-	 for (int l = 0; l < COLS; l++) {
-		int i = k+1;
-		int j = l+1;
-		if (p[i][j] == joueur && p[i + 1][j] == joueur &&
-			 p[i + 2][j] == joueur && p[i + 3][j] == joueur) {
-		  return true;
-		}
-	 }
-  }
-  // Vérification diagonale (bas-gauche à haut-droit)
-  for (int k = 3; k < LINE; k++) {
-	 for (int l = 0; l < COLS - 3; l++) {
-		int i = k+1;
-		int j = l+1;
-		if (p[i][j] == joueur && p[i - 1][j + 1] == joueur &&
-			 p[i - 2][j + 2] == joueur && p[i - 3][j + 3] == joueur) {
-		  return true;
-		}
-	 }
-  }
-  // Vérification diagonale (haut-gauche à bas-droit)
-  for (int k = 0; k < LINE - 3; k++) {
-	 for (int l = 0; l < COLS - 3; l++) {
-		int i = k+1;
-		int j = l+1;
-		if (p[i][j] == joueur && p[i + 1][j + 1] == joueur &&
-			 p[i + 2][j + 2] == joueur && p[i + 3][j + 3] == joueur) {
-		  return true;
-		}
-	 }
-  }
-  return false;
-} */
+  return victoire;
+}
 
 bool verifier_victoire(hgraphe *h, coup *c)//A refaire
 {
@@ -252,6 +227,23 @@ bool verifier_victoire(hgraphe *h, coup *c)//A refaire
 			victoire = false;
 	return victoire;
 }
+
+void joue_a_2(hgraphe* h, coup* c) {
+  if(est_pleine(h)){
+   printf("MATCH NUL, LA GRILLE EST PLEINE");
+   return;
+  }
+  coup_joueur(h, c);
+  while(!coup_correcte(h, c)){
+    printf("Ce coup n'est pas valide, veuillez rejouer");
+    coup_joueur(h, c);
+  }
+   if (prend_sommet(h, c)) affiche_victoire(c->joueur);
+   afficher_graphe(h);
+   c -> joueur = (c -> joueur + 1) % h -> nbj;
+  return;
+}
+
 /*
 bool coup_correcte(int **p, int coup, int* hauteur) {
   return p[hauteur[coup]][coup] == 0;
