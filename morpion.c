@@ -237,25 +237,22 @@ bool prend_sommet(hgraphe *h, coup *c){ // le booleen renvoie s'il y a victoire
 
 
 void joue_a_2(hgraphe* h, coup* c) {
-  if(est_pleine(h)){
-   printf("MATCH NUL, LA GRILLE EST PLEINE");
-   return;
-  }
-  coup_joueur(h, c);
-  while(!coup_correcte(h, c)){
-    printf("Ce coup n'est pas valide, veuillez rejouer");
-    coup_joueur(h, c);
-  }
-   if (prend_sommet(h, c)) affiche_victoire(c->joueur);
-   afficher_graphe(h);
-   c -> joueur = (c -> joueur + 1) % h -> nbj;
-  return;
+	if(est_pleine(h)){
+		printf("MATCH NUL, LA GRILLE EST PLEINE");
+		return;
+	}		
+  	coup_joueur(h, c);
+	if (prend_sommet(h, c)){ 
+		affiche_victoire(c->joueur);
+		return;
+	}
+	afficher_graphe(h);
+	c -> joueur = (c -> joueur + 1) % (h -> nbj);
+	joue_a_2(h,c);
 }
 
 /*
-bool coup_correcte(int **p, int coup, int* hauteur) {
-  return p[hauteur[coup]][coup] == 0;
-}
+
 void print_victoire(int joueur){
   printf("\n");
   printf("     .-. .-')  _  .-')     ('-.          (`-.                \n");
