@@ -68,46 +68,82 @@ hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
   return h;
 }
 
-int *incremente(int *m, int i) // on suppose m < 2^d // i indice de retenue //La fonction permet d'ajouter 1 à un nombre représenté en binaire par un tableau
+void indice_vers_coordonnees(int i, int *x, int dimension, int taille)
 {
-	if(m[i] == 0)
+	for (int k = 0; k < dimension; k++)
+		x[k] = 0;
+	while(i != 0)
 	{
-		m[i] = 1;
-		return m;
+		x[k] = i%taille;
+		i = i/taille;
 	}
-	return ajoute(m, i+1);
-}//Complexité constante en moyenne
+  	return;
+}
 
-int *ajoute(int *n, int *m, int dimension)//Ajouter deux nombre représenté par des tableaux (en base la dimension, il faut donc faire attention de ne pas sortir du plateau)
+void indice_vers_vecteur(int i, int *x, int dimension)
+{
+	indice_vers_coordonnees(i, x, dimension, 3)
+	for(int k = 0; k < dimension; k++)
+		if (x[k] == 2)
+			x[k] = -1;
+  	return;
+}
+
+int *ajoute(int *n, int *m, int dimension)//Ajouter deux nombre représenté par des tableaux (en base la taille, il faut donc faire attention de ne pas sortir du plateau)
 {
 	for(int i = 0; i < dimension; i++)
 		n[i] += m[i];
 	return n;
 }
 
+int *mult_scal(int *x, int l, int dimension)
+{
+	for(int i = 0; i < dimension; i++)
+		x[i] *= l;
+	return x;
+}
+
+bool alignement_valide(int *s, int *v, int dimension, int taille) //A faire
+{
+	
+}
+
 void initialise_arretes(hgraphe *h)
 {
-	int nb_vecteurs = (1 << (h -> dimension)) - 1; //Nombre de vecteurs directeurs de chaque direction
+	//Initialise toutes les directions possibles
+	int nb_vecteurs = (pow(3,h -> dimension) - 1)/2; //Nombre de vecteurs directeurs de chaque direction
 	int **delta = malloc(nb_vecteurs * sizeof(int *)); //Tableau des directions donc tableau de vecteurs
 	for (int i = 0; i < nb_vecteurs; i++)
 		delta[i] = malloc((h -> dimension) * sizeof(int));
-	delta[0][0] = 1;
-	for (int i = 1; i < h -> dimension; i++)
-		delta[0][i] = 0;
-	for (int i = 1; i < nb_vecteurs; i++)
-		delta[i] = incremente[delta[i-1], 0);//Nouvelle direction (c'est un de plus si on considère le vecteur comme un nombre en base deux)
-	int *sommet = malloc((h -> dimension) * sizeof(int));
-	for (int i = 0; i< h -> dimension; i++)
-		sommet[i] = 0;
-	for (int i = 0; i < h -> nb_cases; i++)
+	for (int i = 0; i < nb_vecteurs; i++)
+		for (int j = 0; j < h -> dimension; j++)
+			delta[i][j] = 0;
+	int p = 1;
+	for (int i = 0; i < nb_vecteurs; i++)
 	{
-		sommet = converti_indice_vers_coordonnees(i, sommet,h -> nb_cases, h -> taille, h -> dimension);
-		for(int j = 0; j < nb_vecteurs; j++)
-		{
-			
-			while()
+		for (int j = p; j<2*p; j++)
+			indice_vers_vecteur(j, delta[i], h -> dimension);
+		p *= 3;
+	}	
+
+	//
+	int *sommet = malloc((h -> dimension) * sizeof(int));
+	for (int i = 0; i < h -> dimension; i++)
+		sommet[i] = 0;
+	int i_a = 0;
+	for (int i_v = 0; i_v < nb_vecteurs; i_v++)
+	{	
+		for (int i_s; i_s < h -> nb_cases; i_s ++)
+		{	
+			sommet = indice_vers_coordonnees(i_s, sommet,h -> nb_cases, h -> dimension, h -> taille);
+			if (alignement_valide(sommet, delta[i_v]), h->dimension, h->taille)
 			{
-			
+				i_a++
+				for (int i = 0; i < h ->combo; i++)
+				{	
+					sommet = ajoute(sommet, mult_scal(delta[i_v],i,h->dimension), h->dimension);
+					mat[i_a][coup_vers_indice(sommet)] = 0; //A faire coup_vers_indice comme pour coordonnees vers coup
+				}
 			}
 		}
 	}	
@@ -162,12 +198,7 @@ void converti_coup_vers_indice(hgraphe *h, coup *c)
 
 void converti_indice_vers_coup(hgraphe *h, coup *c)
 {
-  for(int k = h -> dimension; k >= 0; k--)
-    {
-      c -> coordonnees[k] = c -> indice / h -> taille;
-      c -> indice = c->indice - h -> taille * c -> coordonnees[k];
-    }
-  return;
+	indice_vers_coordonnees(c -> indice, c->coordonnees, h->dimension, h->taille);
 }
 
 
