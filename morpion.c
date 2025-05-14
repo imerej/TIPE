@@ -11,7 +11,7 @@
 /*
 typedef struct Plateau {
 	int* grille;
-	int progression; // nombre de coups joués
+	int progression; // nombre de coups joués 
 	int score; //score de la p
 	int dimension; // dimension de la p
 	int taille;// taille de la p
