@@ -1,6 +1,8 @@
 #ifndef MORPION_H
 #define MORPION_H
 
+int pow(int a, int b);
+
 typedef struct Hypergraphe hgraphe;
 
 typedef struct Coup coup;
