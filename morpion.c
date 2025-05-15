@@ -3,7 +3,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "minmax.h"
+//#include "minmax.h"
+#include "morpion.h"
 
 // j'implemente ici un puissance 4 de 7*6 en 2D (avec gravité)//plus maintenant
 //rajouter une verification de la p pleine
