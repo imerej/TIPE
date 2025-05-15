@@ -84,10 +84,12 @@ void indice_vers_coordonnees(int i, int *x, int dimension, int taille)
 {
 	for (int k = 0; k < dimension; k++)
 		x[k] = 0;
+	int k=0;
 	while(i != 0)
 	{
 		x[k] = i%taille;
 		i = i/taille;
+		k++;
 	}
   	return;
 }
@@ -106,7 +108,7 @@ int coordonnees_vers_indice(int *x, int dimension, int taille)
 
 void indice_vers_vecteur(int i, int *x, int dimension)
 {
-	indice_vers_coordonnees(i, x, dimension, 3)
+	indice_vers_coordonnees(i, x, dimension, 3);
 	for(int k = 0; k < dimension; k++)
 		if (x[k] == 2)
 			x[k] = -1;
@@ -170,14 +172,14 @@ void initialise_arretes(hgraphe *h)
 	{	
 		for (int i_s; i_s < h -> nb_cases; i_s ++)
 		{	
-			sommet = indice_vers_coordonnees(i_s, sommet,h -> nb_cases, h -> dimension, h -> taille);
-			if (alignement_valide(sommet, delta[i_v]), h->dimension, h->taille, h->combo)
+			indice_vers_coordonnees(i_s, sommet, h -> dimension, h -> taille);
+			if (alignement_valide(sommet, delta[i_v], h->dimension, h->taille, h->combo))
 			{
-				i_a++
+				i_a++;
 				for (int i = 0; i < h ->combo; i++)
 				{	
 					sommet = ajoute(sommet, mult_scal(delta[i_v],i,h->dimension), h->dimension);
-					mat[i_a][coordonnees_vers_indice(sommet, h->dimension, h->taille)] = 0;
+					h->mat[i_a][coordonnees_vers_indice(sommet, h->dimension, h->taille)] = 0;
 				}
 			}
 		}
@@ -215,7 +217,7 @@ bool sommet_libre(hgraphe *h, coup *c) // verifie que le coup c est bien libre, 
 
 int converti_coup_vers_indice(hgraphe *h, coup *c)
 {
-	c->indice = coordonnees_vers_indice(c->coordonnees, h->dimension; h->taille);
+	c->indice = coordonnees_vers_indice(c->coordonnees, h->dimension, h->taille);
 	return c->indice;
 }
 
