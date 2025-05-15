@@ -1,13 +1,13 @@
-#include "puissance4.h"
-#include "minmax.h"
-#include "reseau_neurones.h"
+//#include "puissance4.h"
+//#include "minmax.h"
+//#include "reseau_neurones.h"
 #include <assert.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define COLS 7
-#define LINE 6
+//#define COLS 7
+//#define LINE 6
 
 
 int main() {
