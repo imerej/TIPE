@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "morpion.h"
 //#define COLS 7
 //#define LINE 6
 
