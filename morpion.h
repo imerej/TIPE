@@ -1,28 +1,29 @@
 #ifndef MORPION_H
 #define MORPION_H
 
-typedef struct Plateau {
-	int* grille;
-	int progression; // nombre de coups joués
-	int score; //score de la p
-	int dimension; // dimension de la p
-	int taille; // taille de la p
-} plateau;
+typedef struct Hypergraphe hgraphe;
 
-typedef struct Coup {
-	int indice; // indice du coup joué
-	int* coordonnees; // coup joué
-	int joueur; // joueur qui joue
-} coup;
+typedef struct Coup coup;
 
-plateau* cree_plateau(int dimension, int taille);
-void liberer_plateau(plateau *p);
+hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj);
+coup* init_coup(hgraphe* h);
+void indice_vers_coordonnees(int i, int *x, int dimension, int taille);
+int coordonnees_vers_indice(int *x, int dimension, int taille);
+void indice_vers_vecteur(int i, int *x, int dimension);
+int *ajoute(int *n, int *m, int dimension);
+int *mult_scal(int *x, int l, int dimension);
+bool alignement_valide(int *s, int *v, int dimension, int taille, int combo);
+void initialise_arretes(hgraphe *h);
+void liberer_graphe(hgraphe *h);
 void liberer_coup(coup *c);
-void coup_joueur(plateau *p, coup *c);
-void converti_coup_vers_indice(plateau *p, coup *c);
-void converti_indice_vers_coup(plateau *p, coup *c);
-bool est_pleine(plateau p);
+bool sommet_libre(hgraphe *h, coup *c);
+int converti_coup_vers_indice(hgraphe *h, coup *c);
+void converti_indice_vers_coup(hgraphe *h, coup *c);
+void coup_joueur(hgraphe *h, coup *c);
+bool est_pleine(hgraphe* h);
+void afficher_graphe(hgraphe *h);
+bool prend_sommet(hgraphe *h, coup *c);
+void joue_a_2(hgraphe* h, coup* c);
 
-void liberer_p(int *p);
 
 #endif

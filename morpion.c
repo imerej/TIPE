@@ -69,6 +69,16 @@ hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
   return h;
 }
 
+coup* init_coup(hgraphe* h)
+{
+	int* coordonnees = malloc(sizeof(int) * h -> dimension);
+	coup* c = malloc(sizeof(coup));
+	c -> indice = 0;
+	c -> joueur = 0;
+	c -> coordonnees = coordonnees;
+	return c;
+}
+
 void indice_vers_coordonnees(int i, int *x, int dimension, int taille)
 {
 	for (int k = 0; k < dimension; k++)
@@ -171,6 +181,7 @@ void initialise_arretes(hgraphe *h)
 			}
 		}
 	}	
+	free(sommet);
 }
 
 void liberer_graphe(hgraphe *h)
@@ -278,6 +289,7 @@ bool prend_sommet(hgraphe *h, coup *c){ // le booleen renvoie s'il y a victoire
       }
     }
   }
+  h -> progression ++;
   return victoire;
 }
 
