@@ -170,7 +170,8 @@ void initialise_arretes(hgraphe *h)
 				}
 			}
 		}
-	}	
+	}
+	free(sommet);
 }
 
 void liberer_graphe(hgraphe *h)
