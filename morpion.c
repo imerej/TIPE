@@ -242,14 +242,14 @@ void converti_indice_vers_coup(hgraphe *h, coup *c)
 
 void coup_joueur(hgraphe *h, coup *c)
 {
-  printf("Quel coup voulez-vous jouer, joueur numero %d ? (<= %d)\n", c -> joueur,h -> taille);
+  printf("Quel coup voulez-vous jouer, joueur numero %d ? (< %d)\n", c -> joueur,h -> taille);
   //int *coup = malloc(h -> dimension*sizeof(int));
 
   for(int i = 0; i < h -> dimension; i++) {
     printf("- pour la %deme coordonnée : ?\n",i);
     scanf("%d \n", &c -> coordonnees[i]);
 
-    if(c -> coordonnees[i] > h -> taille){
+    if(c -> coordonnees[i] >= h -> taille){
       printf("ce n'est pas un coup valide");
       i--;
     }
