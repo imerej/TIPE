@@ -1,7 +1,7 @@
 #ifndef MORPION_H
 #define MORPION_H
 
-int pow(int a, int b);
+int puiss(int a, int b);
 
 typedef struct Hypergraphe hgraphe;
 

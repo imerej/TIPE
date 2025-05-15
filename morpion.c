@@ -19,7 +19,7 @@ typedef struct Plateau {
 } plateau;
 */
 
-int pow(int a, int b)
+int puiss(int a, int b)
 {
 	if (b==0)
 		return 1;
@@ -27,10 +27,10 @@ int pow(int a, int b)
 		return a;
 	if(b%2 == 0)
 	{
-		int c = pow(a,b/2);
+		int c = puiss(a,b/2);
 		return c*c;
 	}
-	int c = pow(a,(b-1)/2);
+	int c = puiss(a,(b-1)/2);
 	return a*c*c;
 }
 
@@ -59,8 +59,8 @@ typedef struct Coup {
 
 hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
 {
-  int nb_a = (pow(3 * taille - 2 * combo + 2, dimension) - pow(taille, dimension)) / 2;
-  int nb_c = pow(taille, dimension);
+  int nb_a = (puiss(3 * taille - 2 * combo + 2, dimension) - puiss(taille, dimension)) / 2;
+  int nb_c = puiss(taille, dimension);
 
   hgraphe* h = malloc(sizeof( hgraphe ));
 
@@ -161,7 +161,7 @@ bool alignement_valide(int *s, int *v, int dimension, int taille, int combo)
 void initialise_arretes(hgraphe *h)
 {
 	//Initialise toutes les directions possibles
-	int nb_vecteurs = (pow(3,h -> dimension) - 1)/2; //Nombre de vecteurs directeurs de chaque direction
+	int nb_vecteurs = (puiss(3,h -> dimension) - 1)/2; //Nombre de vecteurs directeurs de chaque direction
 	int **delta = malloc(nb_vecteurs * sizeof(int *)); //Tableau des directions donc tableau de vecteurs
 	for (int i = 0; i < nb_vecteurs; i++)
 		delta[i] = malloc((h -> dimension) * sizeof(int));
@@ -263,7 +263,7 @@ void coup_joueur(hgraphe *h, coup *c)
 
 bool est_pleine(hgraphe* h)
 {
-	return h -> progression == pow(h -> taille, h -> dimension);
+	return h -> progression == puiss(h -> taille, h -> dimension);
 }
 
 
