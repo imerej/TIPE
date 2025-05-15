@@ -28,7 +28,7 @@ int main() {
   */
 
   // pour le morpion
-  hgraphe* h = cree_graphe(2,7,4,2);
+  hgraphe* h = cree_graphe(2,3,3,2);
   coup* c = init_coup(h);
   joue_a_2(h,c);
 
