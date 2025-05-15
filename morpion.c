@@ -31,7 +31,7 @@ int pow(int a, int b)
 		return c*c;
 	}
 	int c = pow(a,(b-1)/2);
-	return a*c*c
+	return a*c*c;
 }
 
 typedef struct Hypergraphe {
