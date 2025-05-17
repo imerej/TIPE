@@ -80,6 +80,7 @@ hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
   h -> score = 0;
   h -> dimension = dimension;
   h -> taille = taille;
+  h -> combo = combo;
 
   return h;
 }
@@ -136,13 +137,6 @@ int *ajoute(int *n, int *m, int dimension)//Ajouter deux nombre représenté par
 	return n;
 }
 
-int *mult_scal(int *x, int l, int dimension)
-{
-	for(int i = 0; i < dimension; i++)
-		x[i] *= l;
-	return x;
-}
-
 bool alignement_valide(int *s, int *v, int dimension, int taille, int combo)
 {
 	for (int i=0; i<dimension; i++)
@@ -169,10 +163,14 @@ void initialise_arretes(hgraphe *h)
 		for (int j = 0; j < h -> dimension; j++)
 			delta[i][j] = 0;
 	int p = 1;
-	for (int i = 0; i < nb_vecteurs; i++)
+	int i_v = 0;
+	while (i_v < nb_vecteurs)
 	{
 		for (int j = p; j<2*p; j++)
+		{
 			indice_vers_vecteur(j, delta[i], h -> dimension);
+			i_v++;
+		}
 		p *= 3;
 	}	
 
@@ -189,12 +187,12 @@ void initialise_arretes(hgraphe *h)
 			indice_vers_coordonnees(i_s, sommet, h -> dimension, h -> taille);
 			if (alignement_valide(sommet, delta[i_v], h->dimension, h->taille, h->combo))
 			{
-				i_a++;
 				for (int i = 0; i < h ->combo; i++)
 				{	
-					sommet = ajoute(sommet, mult_scal(delta[i_v],i,h->dimension), h->dimension);
-					h->mat[i_a][coordonnees_vers_indice(sommet, h->dimension, h->taille)] = 0;
+					sommet = ajoute(sommet, delta[i_v], h->dimension);
+					h->mat[i_a][coordonnees_vers_indice(sommet, h->dimension, h->taille)-1] = 0;
 				}
+				i_a++;
 			}
 		}
 	}
