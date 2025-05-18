@@ -90,7 +90,7 @@ coup* init_coup(hgraphe* h)
 	int* coordonnees = malloc(sizeof(int) * h -> dimension);
 	coup* c = malloc(sizeof(coup));
 	c -> indice = 0;
-	c -> joueur = 0;
+	c -> joueur = 1;
 	c -> coordonnees = coordonnees;
 	return c;
 }
@@ -189,8 +189,8 @@ void initialise_arretes(hgraphe *h)
 			{
 				for (int i = 0; i < h ->combo; i++)
 				{	
+					h->mat[i_a][coordonnees_vers_indice(sommet, h->dimension, h->taille)] = 0;
 					sommet = ajoute(sommet, delta[i_v], h->dimension);
-					h->mat[i_a][coordonnees_vers_indice(sommet, h->dimension, h->taille)-1] = 0;
 				}
 				i_a++;
 			}
@@ -322,7 +322,7 @@ void joue_a_2(hgraphe* h, coup* c) {
 		return;
 	}
 	afficher_graphe(h);
-	c -> joueur = (c -> joueur + 1) % (h -> nbj);
+	c -> joueur = (c -> joueur + 1) % (h -> nbj) + 1;
 	joue_a_2(h,c);
 }
 
