@@ -26,6 +26,7 @@ bool est_pleine(hgraphe* h);
 void afficher_graphe(hgraphe *h);
 bool prend_sommet(hgraphe *h, coup *c);
 void joue_a_2(hgraphe* h, coup* c);
+void print_victoire();
 
 
 #endif
