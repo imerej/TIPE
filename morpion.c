@@ -81,6 +81,7 @@ hgraphe* cree_graphe(int dimension, int taille, int combo, int nbj)
   h -> dimension = dimension;
   h -> taille = taille;
   h -> combo = combo;
+  h -> nbj = nbj;
 
   return h;
 }
@@ -222,6 +223,8 @@ bool sommet_libre(hgraphe *h, coup *c) // verifie que le coup c est bien libre, 
 		if( h -> mat[j][i] > 0){
 			return false;
 		}
+		if (h -> mat[j][i] == 0)
+			return true;
 	}
 	return true;
 }
@@ -245,7 +248,7 @@ void coup_joueur(hgraphe *h, coup *c)
 
   for(int i = 0; i < h -> dimension; i++) {
     printf("- pour la %deme coordonnée : ?\n",i);
-    scanf("%d \n", &c -> coordonnees[i]);
+    scanf("%d", &c -> coordonnees[i]);
 
     if(c -> coordonnees[i] >= h -> taille){
       printf("ce n'est pas un coup valide");
@@ -295,7 +298,7 @@ bool prend_sommet(hgraphe *h, coup *c){ // le booleen renvoie s'il y a victoire
       h -> mat[j][i] = c -> joueur;
       if(!victoire){ //si on se sait toujours pas s'il y a victoire on continue a vérifier
         int k = 0;
-        while( k < h -> nb_cases && (h -> mat[j][k] == -1 || h -> mat[j][k] == 0)){
+        while( k < h -> nb_cases && (h -> mat[j][k] == -1 || h -> mat[j][k] == c->joueur)){
           k++;
         }
         if(k == h -> nb_cases){
@@ -319,16 +322,17 @@ void joue_a_2(hgraphe* h, coup* c) {
   	coup_joueur(h, c);
 	if (prend_sommet(h, c)){ 
 		printf("\n victoire du joueur %d \n", c -> joueur);
+		print_victoire();
 		return;
 	}
 	afficher_graphe(h);
-	c -> joueur = (c -> joueur + 1) % (h -> nbj) + 1;
+	c -> joueur = (c -> joueur) % (h -> nbj) + 1;
 	joue_a_2(h,c);
 }
 
-/*
 
-void print_victoire(int joueur){
+
+void print_victoire(){
   printf("\n");
   printf("     .-. .-')  _  .-')     ('-.          (`-.                \n");
   printf("     \\  ( OO )( \\( -O )   ( OO ).-.    _(OO  )_              \n");
@@ -343,7 +347,7 @@ void print_victoire(int joueur){
 
   return;
 }
-
+/*
 void joue_a_2(int **p, int joueur, int *hauteur) {
   if(est_pleine(p)){
 	 printf("MATCH NUL, LA GRILLE EST PLEINE");
