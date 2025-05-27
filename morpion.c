@@ -347,6 +347,48 @@ void print_victoire(){
 
   return;
 }
+
+bool verifier_victoire_alignement(hgraphe *h, int i, int joueur)
+{
+	for (int j=0; j<h->nb_cases; j++)
+		if((h->mat[i][j] != -1) && (h->mat[i][j] != joueur))
+             		return false
+	return true;
+}
+
+bool verifier_victoire(hgraphe *h, coup *c)
+{
+    int n = c->joueur;
+    int j = c->indice;
+    for(int i=0; i<h->nb_alignements; i++)
+        if((h->mat[i][j]!=-1) && verifier_victoire_alignement(h,i,n))
+            return true;
+    return false;
+}
+ 
+bool alignement_potentiel(int i, hgraphe *h, int joueur)
+{
+    for(int j=0; j<h->nb_cases; j++)
+        if((h->mat[i][j] != -1) && (h->mat[i][j] != 0) && (h->mat[i][j] != joueur))
+            return false;
+    return true;
+}
+ 
+int score(hgraphe *h, coup *c)
+{
+    int compteur = 0;
+    int j = c->indice;
+    for (int i=0; i<h->nb_alignements; i++)
+    {
+        if (h->mat[i][j] > 0)
+            return -1;
+        if (h->mat[i][j] == 0)
+            if (alignement_potentiel(i,h,coup->joueur))
+                compteur++;
+    }
+    return compteur;
+}
+
 /*
 void joue_a_2(int **p, int joueur, int *hauteur) {
   if(est_pleine(p)){
