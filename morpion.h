@@ -29,11 +29,10 @@ void joue_a_2(hgraphe* h, coup* c);
 void print_victoire();
 bool verifier_victoire_alignement(hgraphe *h, int i, int joueur);
 bool verifier_victoire(hgraphe *h, coup *c);
-bool alignement_potentiel(int i, hgraphe *h, int joueur);
-int score(hgraphe *h, coup *c);
-int minimax(hgraphe *h, coup *coup, int profondeur, bool maxjoueur, int joueur_actuel);
-coup* choisir_coup_ordinateur(hgraphe *h, int profondeur, int joueur);
-void annuler_coup(hgraphe *h, coup *c);
-void joue_avec_ordinateur(hgraphe *h, int profondeur_max);
+int score(hgraphe *h);
+int minmax(hgraphe *h, int profondeur, int joueur);
+void joue_ordi(hgraphe *h, coup *c, int profondeur);
+coup* nieme_libre(hgraphe *h, coup *c, int n);
+void joue_alea(hgraphe *h, coup *c);
 
 #endif
