@@ -366,175 +366,265 @@ bool verifier_victoire(hgraphe *h, coup *c)
     return false;
 }
  
-bool alignement_potentiel(int i, hgraphe *h, int joueur)
+int score(hgraphe *h)
 {
-    for(int j=0; j<h->nb_cases; j++)
-        if((h->mat[i][j] != -1) && (h->mat[i][j] != 0) && (h->mat[i][j] != joueur))
-            return false;
-    return true;
+	int compteur = 0;
+	for (int i=0; i<h->nb_alignements; i++)
+	{
+		bool align1 = false;
+		bool align2 = false;
+		bool align1et2 = false;
+		for(int j=0; j<h->nb_cases; j++)
+		{
+			if (h->mat[i][j] == -1 || h->mat[i][j] == 0)
+				continue;
+			if (h->mat[i][j] == 1 && !align2 && !align1et2)
+				align1 = true;
+			if (h->mat[i][j] == 2 && !align1 && !align1et2)
+				align2 = true;
+			if ((h->mat[i][j] == 1 && align2)||(h->mat[i][j] == 2 && align1))
+			{
+				align1 = false;
+				align2 = false;
+				align1et2 = true;
+			}
+		}
+		if(align1)
+			compteur++;
+		if(align2)
+			compteur--;
+	}
+	return compteur;
 }
- 
-int score(hgraphe *h, coup *c)
+
+int minmax(hgraphe *h, int profondeur, int joueur)
 {
-    int compteur = 0;
-    int j = c->indice;
-    for (int i=0; i<h->nb_alignements; i++)
+    bool max = (joueur == 1);
+    int score_ext = max ? -h->nb_alignements : h->nb_alignements;
+
+    if (profondeur == 0)
+        return score(h);
+
+    for (int j = 0; j < h->nb_cases; j++)
     {
-        if (h->mat[i][j] > 0)
-            return -1;
-        if (h->mat[i][j] == 0)
-            if (alignement_potentiel(i,h,coup->joueur))
-                compteur++;
-    }
-    return compteur;
-}
-
-int minimax(hgraphe *h, coup *coup, int profondeur, bool maxjoueur, int joueur_actuel) {
-    if (verifier_victoire(h, coup)) {
-        // Victoire si joueur actuel vient de jouer
-        return maxjoueur ? -1000 : 1000;
-    }
-    if (est_pleine(h) || profondeur == 0) {
-        return score(h, coup);  // Heuristique
-    }
-
-    int meilleur_score = maxjoueur ? -10000 : 10000;
-    coup c_temp;
-    *(&c_temp) = *coup;  // Copie superficielle, attention aux pointeurs
-
-    for (int i = 0; i < h->nb_cases; i++) {
-        // Préparer un coup possible sur la case i (convertir indice en coord)
-        converti_indice_vers_coup(h, &c_temp);
-        c_temp.indice = i;
-        indice_vers_coordonnees(i, c_temp.coordonnees, h->dimension, h->taille);
-        c_temp.joueur = joueur_actuel;
-
-        if (!sommet_libre(h, &c_temp)) {
-            continue; // case déjà prise
+        // Vérifier si le coup est valide
+        bool valide = false;
+        for (int i = 0; i < h->nb_alignements; i++)
+        {
+            if (h->mat[i][j] == 0)
+            {
+                valide = true;
+                break;
+            }
         }
+        if (!valide)
+            continue;
 
         // Simuler le coup
-        prend_sommet(h, &c_temp);
+        for (int i = 0; i < h->nb_alignements; i++)
+            if(h->mat[i][j] != -1)
+                h->mat[i][j] = joueur;
         h->progression++;
 
-        int score_courant = minimax(h, &c_temp, profondeur - 1, !maxjoueur,
-                                   (joueur_actuel % h->nbj) + 1);
+        if(est_pleine(h))
+        {
+            for(int i = 0; i < h->nb_alignements; i++)
+                if(h->mat[i][j] != -1)
+                    h->mat[i][j] = 0;
+            h->progression--;
+            return 0;
+        }
 
-        // Annuler le coup simulé
-        // Il faut écrire une fonction annuler_coup() pour restaurer la matrice !
-        annuler_coup(h, &c_temp);
+        coup *c = init_coup(h);
+        c->indice = j;
+        converti_indice_vers_coup(h, c);
+        c->joueur = joueur;
+
+        if(max && verifier_victoire(h, c))
+        {
+            for(int i = 0; i < h->nb_alignements; i++)
+                if(h->mat[i][j] != -1)
+                    h->mat[i][j] = 0;
+            h->progression--;
+            return h->nb_alignements;
+        }
+
+        if(!max && verifier_victoire(h, c))
+        {
+            for(int i = 0; i < h->nb_alignements; i++)
+                if(h->mat[i][j] != -1)
+                    h->mat[i][j] = 0;
+            h->progression--;
+            return -h->nb_alignements;
+        }
+
+        liberer_coup(c);
+
+        int score_tmp = minmax(h, profondeur - 1, joueur % 2 + 1);
+
+        if (max && score_tmp > score_ext)
+            score_ext = score_tmp;
+        else if (!max && score_tmp < score_ext)
+            score_ext = score_tmp;
+
+        // Annuler le coup
+        for (int i = 0; i < h->nb_alignements; i++)
+            if(h->mat[i][j] != -1)
+                h->mat[i][j] = 0;
         h->progression--;
-
-        if (maxjoueur) {
-            if (score_courant > meilleur_score)
-                meilleur_score = score_courant;
-        } else {
-            if (score_courant < meilleur_score)
-                meilleur_score = score_courant;
-        }
     }
-
-    return meilleur_score;
+    return score_ext;
 }
 
-coup* choisir_coup_ordinateur(hgraphe *h, int profondeur, int joueur) {
-    coup* meilleur_coup = init_coup(h);
-    meilleur_coup->joueur = joueur;
-
-    int meilleur_score = -10000;
-    coup c_test;
-    *(&c_test) = *meilleur_coup;
-
-    for (int i = 0; i < h->nb_cases; i++) {
-        indice_vers_coordonnees(i, c_test.coordonnees, h->dimension, h->taille);
-        c_test.indice = i;
-        c_test.joueur = joueur;
-
-        if (!sommet_libre(h, &c_test)) continue;
-
-        prend_sommet(h, &c_test);
-        h->progression++;
-
-        int score_courant = minimax(h, &c_test, profondeur - 1, false,
-                                   (joueur % h->nbj) + 1);
-
-        annuler_coup(h, &c_test);
-        h->progression--;
-
-        if (score_courant > meilleur_score) {
-            meilleur_score = score_courant;
-            *meilleur_coup = c_test;
-            // Attention : gérer copie profonde des coordonnees si besoin
-        }
+void joue_ordi(hgraphe* h, coup *c, int profondeur)
+{
+    if(est_pleine(h))
+    {
+        printf("\nMATCH NUL, LA GRILLE EST PLEINE \n");
+        return;
     }
-    return meilleur_coup;
-}
 
-void annuler_coup(hgraphe *h, coup *c) {
-    int i = c->indice;
-    int joueur = c->joueur;
-
-    for (int j = 0; j < h->nb_alignements; j++) {
-        // Si la case appartient à cet alignement
-        if (h->mat[j][i] == joueur) {
-            // On remet la case libre (0)
-            h->mat[j][i] = 0;
+    if (c->joueur == 1)
+    {
+        coup_joueur(h, c);
+        if (prend_sommet(h, c))
+        {
+            printf("\n victoire du joueur %d \n", c->joueur);
+            print_victoire();
+            return;
         }
+        c->joueur = 2;
+        c->indice = 0;
+        for(int i = 0; i < h->dimension; i++)
+            c->coordonnees[i] = 0;
+        joue_ordi(h, c, profondeur);
     }
-}
+    else
+    {
+        int meilleur_score = h->nb_alignements;
+        int meilleur_coup = -1;
 
-void joue_avec_ordinateur(hgraphe *h, int profondeur_max) {
-    coup *c = init_coup(h);
+        for (int j = 0; j < h->nb_cases; j++)
+        {
+            // Vérifie si le coup est valide
+            bool valide = false;
+            for (int i = 0; i < h->nb_alignements; i++)
+            {
+                if (h->mat[i][j] == 0)
+                {
+                    valide = true;
+                    break;
+                }
+            }
+            if (!valide)
+                continue;
 
-    bool victoire = false;
-    while (!victoire && !est_pleine(h)) {
+            // Simule le coup
+            for (int i = 0; i < h->nb_alignements; i++)
+                if(h->mat[i][j] != -1)
+                    h->mat[i][j] = c->joueur;
+            h->progression++;
+
+            int score_tmp = minmax(h, profondeur - 1, 1);  // Le joueur humain joue ensuite
+            printf("Score_tmp à la profondeur %d: %d \n", profondeur, score_tmp);
+
+            if (score_tmp < meilleur_score)
+            {
+                meilleur_score = score_tmp;
+                meilleur_coup = j;
+            }
+
+            // Annule le coup
+            for (int i = 0; i < h->nb_alignements; i++)
+                if(h->mat[i][j] != -1)
+                    h->mat[i][j] = 0;
+            h->progression--;
+        }
+
+        // Joue le meilleur coup trouvé
+        if (meilleur_coup != -1)
+        {
+            c->indice = meilleur_coup;
+            converti_indice_vers_coup(h, c);
+            if (prend_sommet(h, c))
+            {
+                printf("\nVictoire de l'ordinateur\n");
+                return;
+            }
+        }
         afficher_graphe(h);
+        printf("\nL'ordinateur joue dans la case %d.\n", meilleur_coup);
+        printf("Le score est: %d \n", meilleur_score);
+        c->joueur = 1;
+        c->indice = 0;
+        for (int i = 0; i < h->dimension; i++)
+            c->coordonnees[i] = 0;
+        joue_ordi(h, c, profondeur);
+    }
+}
 
-        if (c->joueur == 1) {
-            // Tour du joueur humain (joueur 1)
-            printf("Tour du joueur humain (joueur 1)\n");
-            coup_joueur(h, c);
-        } else {
-            // Tour de l'ordinateur (joueur 2)
-            printf("Tour de l'ordinateur (joueur 2)\n");
-            minimax(h, profondeur_max, c->joueur, c);
-            printf("L'ordinateur joue le coup à l'indice %d\n", c->indice);
-            converti_indice_vers_coup(h, c);  // si besoin d'avoir coordonnees lisibles
-        }
+coup* nieme_libre(hgraphe *h, coup *c, int n)
+{
+    if (sommet_libre(h, c) && n == 0)
+        return c;
 
-        // Appliquer le coup
-        if (!sommet_libre(h, c)) {
-            printf("Coup non valide, rejouez.\n");
-            continue; // redemande coup si invalidité
-        }
+    c->indice += 1;
+    converti_indice_vers_coup(h, c);
 
-        // Appliquer le coup sur le graphe
-        prend_sommet(h, c);
-        h->progression++;
+    if (sommet_libre(h, c))
+        return nieme_libre(h, c, n - 1);
 
-        // Vérifier victoire
-        victoire = verifie_victoire(h, c);
-        if (victoire) {
-            afficher_graphe(h);
-            if (c->joueur == 1)
-                printf("Bravo, joueur humain a gagné !\n");
-            else
-                printf("L'ordinateur a gagné !\n");
-            break;
-        }
+    return nieme_libre(h, c, n);
+}
 
-        if (est_pleine(h)) {
-            afficher_graphe(h);
-            printf("Match nul, plateau plein.\n");
-            break;
-        }
-
-        // Changer de joueur
-        c->joueur = (c->joueur == 1) ? 2 : 1;
+void joue_alea(hgraphe *h, coup *c)
+{
+    if (est_pleine(h))
+    {
+        printf("\nMATCH NUL, LA GRILLE EST PLEINE \n");
+        return;
     }
 
-    liberer_coup(c);
+    if (c->joueur == 1)
+    {
+        coup_joueur(h, c);
+        if (prend_sommet(h, c))
+        {
+            printf("\nVictoire du joueur %d\n", c->joueur);
+            print_victoire();
+            return;
+        }
+        c->joueur = 2;
+        c->indice = 0;
+        for (int i = 0; i < h->dimension; i++)
+            c->coordonnees[i] = 0;
+
+        joue_alea(h, c);
+    }
+    else
+    {
+        int libre = h->nb_cases - h->progression;
+        int n = rand() % libre;
+        c->indice = n;
+        converti_indice_vers_coup(h, c);
+        c = nieme_libre(h, c, n);
+
+        if (prend_sommet(h, c))
+        {
+            printf("\nVictoire de l'ordinateur\n");
+            return;
+        }
+
+        c->joueur = 1;
+        c->indice = 0;
+        for (int i = 0; i < h->dimension; i++)
+            c->coordonnees[i] = 0;
+
+        afficher_graphe(h);
+        joue_alea(h, c);
+    }
 }
+
 
 /*
 void joue_a_2(int **p, int joueur, int *hauteur) {
