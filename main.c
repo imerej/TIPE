@@ -31,7 +31,10 @@ int main() {
   // pour le morpion
   hgraphe* h = cree_graphe(2,3,3,2);
   coup* c = init_coup(h);
-  joue_a_2(h,c);
+  //joue_a_2(h,c);
+  int profondeur = 3;
+  //joue_ordi(h,c,profondeur);
+  joue_alea(h,c);
 
   return 0;
 }
